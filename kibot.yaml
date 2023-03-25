@@ -8,14 +8,14 @@ outputs:
 - name: 'schematic'
   comment: "Schematic PDF"
   type: pdf_sch_print
-  dir: pg
+  dir: pg_temp
   options:
     output: '%f.%x'
 
 - name: gerbers
   comment: Gerbers
   type: gerber
-  dir: pg/gerber
+  dir: pg_temp/gerber
   options:
     exclude_edge_layer: true
     exclude_pads_from_silkscreen: true
@@ -38,7 +38,7 @@ outputs:
 - name: drill
   comment: Drill files
   type: excellon
-  dir: pg/gerber
+  dir: pg_temp/gerber
   options:
     metric_units: false
     minimal_header: true
@@ -52,7 +52,7 @@ outputs:
 - name: zip
   comment: ZIP file for Gerbers
   type: compress
-  dir: pg
+  dir: pg_temp
   options:
     format: ZIP
     files:

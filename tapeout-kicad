@@ -1,0 +1,76 @@
+#!/bin/bash
+
+ABSPATH=$(/bin/readlink -f $0)
+BASEPATH=`/usr/bin/dirname $ABSPATH`
+
+if [ $# -lt 2 ]
+then
+	echo "Usage: `basename $0` <design_name> <hw_version> <optional pcb_name>"
+	echo "  design_name = Base name of design (found in ./kicad/<design_name>/)"
+	echo "  hw_version  = Hardware version #"
+	echo "  pcb_name    = PCB name, if different from design_name (no extension)"
+	echo "  Example: `basename $0` ckt-wormhole 1.0 ckt-wormhole-array"
+	exit
+fi
+
+if [ $# -eq 3 ]
+then
+	PCBFILE=kicad/$1/$3.kicad_pcb
+	DRCFILE=$3-drc.txt
+	PROJ=$3
+else
+	PCBFILE=kicad/$1/$1.kicad_pcb
+	DRCFILE=$1-drc.txt
+	PROJ=$1
+fi
+
+SCHFILE=kicad/$1/$1.kicad_sch
+# ERC produces lots of errors if net types are not correctly set up
+#ERCFILE=$1-erc.txt
+
+if [ -z "$(git symbolic-ref HEAD 2> /dev/null)" ]
+then
+	# Not Git
+	echo "No support for non-Git"
+	exit
+else
+	# Git
+	if [ -z "$(git status --porcelain $PCBFILE)" ]
+	then
+		echo "PCB file is clean. (GIT)"
+	else
+		echo "PCB file has local changes. (GIT)"
+		exit
+	fi 
+	REV=$(git log -n1 --pretty=format:"%h" $PCBFILE)
+fi
+
+PGPATH=$PROJ-v$2-$REV
+
+if [ -d "pg/$PGPATH" ]; then
+	echo "Directory pg/$PGPATH already exists!"
+	exit
+fi
+
+echo "Project = $PROJ"
+echo "PG Path = $PGPATH"
+echo -n "OK to proceed?"
+read -n 1 -s c
+if [ "$c" != "y" ]; then
+	echo
+	exit
+fi
+
+echo
+echo
+
+echo "Running Kibot..."
+kibot -b $PCBFILE -c /home/data/design/projects/ise-kicad/kibot.yaml -e $SCHFILE
+
+echo "Moving Tapeout Files..."
+mkdir -p pg
+mv pg_temp pg/$PGPATH
+mv $DRCFILE pg/$PGPATH
+
+echo "Cleaning up..."
+rm $(echo $SCHFILE | sed "s/kicad_sch/kicad_pro-bak/") 2> /dev/null
