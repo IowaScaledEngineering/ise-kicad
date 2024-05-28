@@ -1,0 +1,15 @@
+3D Models:
+Put in ise-kicad/3DModels
+Preferences -> Configure Paths -> 3D Search Paths
+	ISE_3DModels = <path to 3DMOdels directory>
+To add model at board level:
+	Footprint properties -> 3D Models tab
+	Add ISE_3DModels:<model filename>
+	Adjust offset and rotation
+
+Panelize Board:
+kikit panelize -p <design>.json <design>.kicad_pcb <design>-array.kicad_pcb
+
+Ultra Librarian:
+	Import symbol into ISE_UltraLibrarian library
+	Import footprint into ISE_UltraLibrarian library
