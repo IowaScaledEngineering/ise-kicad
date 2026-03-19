@@ -65,12 +65,12 @@ echo
 echo
 
 echo "Running Kibot..."
-kibot -b $PCBFILE -c /home/data/design/projects/ise-kicad/kibot.yaml -e $SCHFILE
+kibot -b $PCBFILE -c /home/ndholmes/data/projects/ise-kicad/kibot.yaml -e $SCHFILE
 
 echo "Moving Tapeout Files..."
 mkdir -p pg
 mv pg_temp pg/$PGPATH
-mv $DRCFILE pg/$PGPATH
+#mv $DRCFILE pg/$PGPATH
 
 echo "Cleaning up..."
 rm $(echo $SCHFILE | sed "s/kicad_sch/kicad_pro-bak/") 2> /dev/null
